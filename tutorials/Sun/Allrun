@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# Create the mesh
+#module unload openfoam/2106plus
+#module load openfoam/5.0.ext
+#foamCleanPolyMesh
+blockMesh
+#cp -r 0_org 100
+
+##sed -i -e 's/empty/emptyy/g' constant/polyMesh/boundary
+snappyHexMesh -overwrite
+##sed -i -e 's/emptyy/empty/g' constant/polyMesh/boundary
+extrudeMesh
+
+cp -r 0_org 0
+
+setFields
+
+#mapFields -sourceTime 150 initial_1D_profile/1DSedim
+decomposePar
+#module unload openfoam/5.0.ext
+#module load openfoam/2106plus
+
+# Run sedFoam
+mpirun -np 4 interFoam -parallel > log&
